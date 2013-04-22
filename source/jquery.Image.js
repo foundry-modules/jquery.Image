@@ -82,6 +82,8 @@ $.Image = {
 		}
 
 		return {
+			top: (maxHeight - targetHeight) / 2,
+			left: (maxWidth - targetWidth) / 2,
 			width: targetWidth,
 			height: targetHeight
 		};
