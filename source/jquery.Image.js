@@ -62,56 +62,84 @@ $.Image = {
 		return imageLoader;
 	},
 
-	resizeWithin: function(sourceWidth, sourceHeight, maxWidth, maxHeight) {
+	aspectRatio: function(width, height) {
+
+		// Normalize values
+		if ($.isPlainObject(width)) {
+			width  = width.width;
+			height = width.height;
+		}
+
+		return width / height;
+	},
+
+	orientation: function(width, height) {
+
+		// Normalize values
+		if ($.isPlainObject(width)) {
+			width  = width.width;
+			height = width.height;
+		}
+
+		if (width===height) return "square";
+
+		if (width > height) return "wide";
+
+		return "tall";
+	},
+
+	resizeProportionate: function(sourceWidth, sourceHeight, maxWidth, maxHeight, mode) {
 
 		var targetWidth = sourceWidth,
 			targetHeight = sourceHeight;
 
 		// Resize the width first
-		var ratio = maxWidth / sourceWidth;
+		var ratio        = maxWidth / sourceWidth;
+			targetWidth  = sourceWidth  * ratio;
+			targetHeight = sourceHeight * ratio;
 
-		targetWidth  = sourceWidth  * ratio;
-		targetHeight = sourceHeight * ratio;
 
-		if (targetHeight > maxHeight)
-		{
-			var ratio = maxHeight / sourceHeight;
+		// inner resize (default)
+		var condition = targetHeight > maxHeight;
 
+		// outer resize
+		if (mode=="outer") {
+			condition = targetHeight < maxHeight;
+		}
+
+		if (condition) {
+			ratio        = maxHeight / sourceHeight;
 			targetWidth  = sourceWidth  * ratio;
 			targetHeight = sourceHeight * ratio;
 		}
 
 		return {
-			top: (maxHeight - targetHeight) / 2,
-			left: (maxWidth - targetWidth) / 2,
-			width: targetWidth,
+			top   : (maxHeight - targetHeight) / 2,
+			left  : (maxWidth - targetWidth) / 2,
+			width : targetWidth,
 			height: targetHeight
 		};
 	},
 
+	resizeWithin: function(sourceWidth, sourceHeight, maxWidth, maxHeight) {
+
+		return $.Image.resizeProportionate(
+			sourceWidth,
+			sourceHeight,
+			maxWidth,
+			maxHeight,
+			"inner"
+		);
+	},
+
 	resizeToFill: function(sourceWidth, sourceHeight, maxWidth, maxHeight) {
 
-		var targetWidth = sourceWidth,
-			targetHeight = sourceHeight;
-
-		var ratio = maxWidth / sourceWidth;
-
-		targetWidth  = sourceWidth  * ratio;
-		targetHeight = sourceHeight * ratio;
-
-		if (targetHeight < maxHeight) {
-
-			var ratio = maxHeight / sourceHeight;
-
-			targetWidth  = sourceWidth  * ratio;
-			targetHeight = sourceHeight * ratio;
-		}
-
-		return {
-			top: (maxHeight - targetHeight) / 2,
-			left: (maxWidth - targetWidth) / 2,
-			width: targetWidth,
-			height: targetHeight
-		};
+		return $.Image.resizeProportionate(
+			sourceWidth,
+			sourceHeight,
+			maxWidth,
+			maxHeight,
+			"outer"
+		);
 	}
 };
