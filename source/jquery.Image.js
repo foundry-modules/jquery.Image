@@ -33,17 +33,19 @@ $.Image = {
 
 				if (!existingImage) { image.appendTo("body"); }
 
+				var data = {
+					width: w = image.width(),
+					height: h = image.height(),
+					aspectRatio: r = w / h,
+					orientation: o = (r===1) ? "square" : (r<1) ? "tall" : "wide"
+				}	
+
 				image
 					.css({
 						position: "absolute",
 						left: "-99999px"
 					})
-					.data({
-						width: w = image.width(),
-						height: h = image.height(),
-						aspectRatio: r = w / h,
-						orientation: o = (r===1) ? "square" : (r<1) ? "tall" : "wide"
-					})
+					.data(data)
 					.addClass("orientation-" + o)
 					.removeAttr("style");
 
@@ -51,7 +53,7 @@ $.Image = {
 					image.detach();
 				}
 
-				imageLoader.resolve(image);
+				imageLoader.resolve(image, data);
 			})
 			.error(function(){
 
